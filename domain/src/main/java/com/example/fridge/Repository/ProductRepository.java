@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
+import java.sql.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Repository
@@ -32,7 +34,7 @@ public class ProductRepository {
         return jdbcTemplate.query(FETCH_ALL_PRODUCTS, (resultSet, rowNum) -> {
             int id = resultSet.getInt("id");
             String name = resultSet.getString("productname");
-            Date expiryDate = resultSet.getDate("expirationdate");
+            LocalDateTime expiryDate = resultSet.getTimestamp("expirationdate").toLocalDateTime();
             String type = resultSet.getString("type");
             byte[] photo = resultSet.getBytes("photo");
             return Product.getInstance(id,name,expiryDate,photo,type);

@@ -1,17 +1,18 @@
 package com.example.fridge.Entity;
 
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class Product {
     protected int id;
-    protected Date expirationDate;
+    protected LocalDateTime expirationDate;
     protected byte[] image;
     protected String productName;
 
     protected String type;
 
-    protected Product(int id, Date expirationDate, byte[] image, String productName){
+    protected Product(int id, LocalDateTime expirationDate, byte[] image, String productName){
         this.id = id;
         this.expirationDate = expirationDate;
         this.image = image;
@@ -31,7 +32,7 @@ public class Product {
             default -> throw new IllegalArgumentException("invalid data");
         };
     }
-    public static Product getInstance(int id,String name, Date date, byte[] photo, String type)
+    public static Product getInstance(int id,String name, LocalDateTime date, byte[] photo, String type)
     {
         return switch (type) {
             case "Vegetable" ->
@@ -48,7 +49,7 @@ public class Product {
         return null;
     }
 
-    public Date getExpirationDate() {
+    public LocalDateTime getExpirationDate() {
         return expirationDate;
     }
     public String getProductName() {
@@ -73,7 +74,7 @@ public class Product {
         this.image = image;
     }
 
-    public void setExpirationDate(Date expirationDate) {
+    public void setExpirationDate(LocalDateTime expirationDate) {
         this.expirationDate = expirationDate;
     }
 }
