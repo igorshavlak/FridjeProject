@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/15277ee0a1.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-15 col-sm-10 col-lg-6" style="height:300px;width:500px;overflow-y:scroll;">
+                <h6 class="text-muted">Fridge food list</h6>
+                <ul class="list-group" id="productsList">
+
+                </ul>
+
+            </div>
+
+        </div>
+
+
+
+        <p><a class="button" href="#popup1">Click Me</a></p>
+    <div id="popup1" class="overlay">
+        <div class="popup">
+            <h2>Info box</h2>
+            <a class="close" href="#">&times;</a>
+            <div class="content">
+                <form>
+
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required><br><br>
+
+                    <label for="category">Category:</label>
+                    <select id="category" class="form-select form-select-sm" aria-label=".form-select-sm example">
+                        <option selected>Open this select menu</option>
+                        <option value="Fruit">Fruit</option>
+                        <option value="Vegetable">Vegetable</option>
+                        <option value="MeatProduct">MeatProduct</option>
+                    </select>
+
+                    <label for="photo">Photo:</label>
+                    <input type="file" id="photo" name="photo" required><br><br>
+
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="trip-start"
+                           value="2018-07-22"
+                           min="2018-01-01">
+
+                    <button type="button" class="btn btn-primary btn-sm" id="addProductButton">Add product</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script>
+    const url = 'http://localhost:8080';
+    const addProductButton = document.getElementById("addProductButton");
+    const listProducts = document.getElementById("productsList")
+
+    const state = {
+        products: [],
+        newProduct: {
+            id: '',
+            expirationDate: '',
+            image: null,
+            productName: '',
+        }
+    }
+    var productName = document.getElementById("name");
+    var photoInput = document.getElementById("photo");
+    var date = document.getElementById("date");
+    var productType = document.getElementById("category");
+    document.addEventListener('DOMContentLoaded', async () => {
+        await getProductsRequest();
+
+    })
+
+    addProductButton.addEventListener("click", function () {
+
+        state.newProduct.productName = productName.value;
+        state.newProduct.expirationDate = date.value;
+        const json = JSON.stringify(state.newProduct);
+        const blob = new Blob([json], {
+            type: 'application/json'
+        });
+        const formData = new FormData();
+        formData.append("image", photoInput.files[0]);
+        formData.append("product", blob);
+        formData.append("productType", productType.value)
+        fetch(url + "/addProduct", {
+            method: "POST",
+            body: formData
+        })
+            .then(function (response) {
+                if (response.ok) {
+                    console.log("success")
+                } else {
+                    console.log("error")
+                }
+            })
+            .catch(function (error) {
+
+                console.log(error);
+            });
+    });
+
+    function getProductsRequest() {
+        return fetch(url + "/getProduct", {
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+            .then((res) => res.json())
+            .then(products => renderProductList(products))
+            .catch(error => console.error(error));
+    }
+
+    function renderProductList(products) {
+
+        products.forEach(function (product) {
+            createProductListItem(product);
+        });
+    }
+
+    function createProductListItem(data) {
+        var listItem = document.createElement('a');
+        listItem.setAttribute('href', '#');
+        listItem.classList.add('list-group-item', 'list-group-item-action', 'd-flex', 'justify-content-between', 'align-items-center');
+
+// Створення блоку змісту
+        var contentDiv = document.createElement('div');
+        contentDiv.classList.add('flex-column');
+// Додавання заголовка
+        var title = document.createTextNode(data.productName);
+        var titleElement = document.createElement('p');
+        titleElement.appendChild(title);
+        contentDiv.appendChild(titleElement);
+
+// Додавання автора
+        var author = document.createTextNode(data.type);
+        var authorElement = document.createElement('p');
+        authorElement.appendChild(author);
+        contentDiv.appendChild(authorElement);
+
+// Додавання значка
+        var badgeSpan = document.createElement('span');
+        badgeSpan.classList.add('badge', 'badge-info', 'badge-pill');
+        badgeSpan.textContent = data.expirationDate;
+        contentDiv.appendChild(badgeSpan);
+
+        // Додавання іконки видалення
+        var deleteIcon = document.createElement('i');
+        deleteIcon.addEventListener('click', () => {
+            deleteProduct(data.id)
+        });
+        deleteIcon.classList.add('fas', 'fa-trash-alt');
+        contentDiv.appendChild(deleteIcon);
+
+// Додавання блоку змісту до елемента списку
+        listItem.appendChild(contentDiv);
+
+// Створення блоку зображення
+        var imageDiv = document.createElement('div');
+        imageDiv.classList.add('image-parent');
+
+
+// Створення зображення
+        var image = document.createElement('img');
+        image.setAttribute('src', 'data:image/jpeg;base64,' + data.image);
+        image.classList.add('img-fluid');
+        image.setAttribute('alt', 'quixote');
+        imageDiv.appendChild(image);
+
+
+// Додавання блоку зображення до елемента списку
+        listItem.appendChild(imageDiv);
+
+
+// Додавання елемента списку до DOM-дерева
+        var listGroup = document.getElementById('productsList');
+        listGroup.appendChild(listItem);
+    }
+
+    function deleteProduct(id) {
+        return fetch(`http://localhost:8080/deleteProduct/${id}`, {
+            method: 'DELETE'
+        })
+    }
+
+
+</script>
+</body>
+</html>
