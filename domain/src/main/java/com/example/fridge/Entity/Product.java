@@ -1,46 +1,38 @@
 package com.example.fridge.Entity;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-public class Product {
+public abstract class Product {
     protected int id;
-    protected LocalDateTime expirationDate;
+    protected LocalDate expirationDate;
     protected byte[] image;
     protected String productName;
 
     protected String type;
+    protected boolean expiredStatus;
 
-    protected Product(int id, LocalDateTime expirationDate, byte[] image, String productName){
+    protected Product(int id, LocalDate expirationDate, boolean expiredStatus, byte[] image, String productName){
         this.id = id;
         this.expirationDate = expirationDate;
         this.image = image;
         this.productName = productName;
+        this.expiredStatus = expiredStatus;
     }
     protected Product(){
 
     }
-    public static Product getInstance(Product product, String type){
-        return switch (type) {
-            case "Vegetable" ->
-                    new Vegetable(product.getId(), product.getExpirationDate(), product.getImage(), product.getProductName());
-            case "Fruit" ->
-                    new Fruit(product.getId(), product.getExpirationDate(), product.getImage(), product.getProductName());
-            case "MeatProduct" ->
-                    new MeatProduct(product.getId(), product.getExpirationDate(), product.getImage(), product.getProductName());
-            default -> throw new IllegalArgumentException("invalid data");
-        };
-    }
-    public static Product getInstance(int id,String name, LocalDateTime date, byte[] photo, String type)
+    public static Product getInstance(int id,String name, LocalDate date,boolean expiredStatus, byte[] photo, String type)
     {
         return switch (type) {
             case "Vegetable" ->
-                    new Vegetable(id,date,photo,name);
+                    new Vegetable(id,date,expiredStatus,photo,name);
             case "Fruit" ->
-                    new Fruit(id,date,photo,name);
+                    new Fruit(id,date,expiredStatus,photo,name);
             case "MeatProduct" ->
-                    new MeatProduct(id,date,photo,name);
+                    new MeatProduct(id,date,expiredStatus,photo,name);
             default -> throw new IllegalArgumentException("invalid data");
         };
     }
@@ -49,7 +41,7 @@ public class Product {
         return null;
     }
 
-    public LocalDateTime getExpirationDate() {
+    public LocalDate getExpirationDate() {
         return expirationDate;
     }
     public String getProductName() {
@@ -60,6 +52,14 @@ public class Product {
     }
     public int getId() {
         return id;
+    }
+
+    public void setExpiredStatus(boolean expiredStatus) {
+        this.expiredStatus = expiredStatus;
+    }
+
+    public boolean isExpiredStatus() {
+        return expiredStatus;
     }
 
     public void setProductName(String productName) {
@@ -74,7 +74,7 @@ public class Product {
         this.image = image;
     }
 
-    public void setExpirationDate(LocalDateTime expirationDate) {
+    public void setExpirationDate(LocalDate expirationDate) {
         this.expirationDate = expirationDate;
     }
 }

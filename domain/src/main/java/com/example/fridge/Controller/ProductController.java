@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @RestController
 public class ProductController {
     @Autowired
@@ -22,8 +23,10 @@ public class ProductController {
     @PostMapping("/addProduct")
     public ResponseEntity<String> addProduct(@RequestPart("image") MultipartFile photo, @RequestPart("product") ProductDTO product,
                                              @RequestPart("productType") String type) throws IOException {
-
-        productRepository.addProduct(Product.getInstance(0, product.productName, product.expirationDate, photo.getBytes(), type));
+        boolean status;
+        LocalDate date = LocalDate.parse(product.expirationDate);
+        status = date.isBefore(LocalDate.now());
+        productRepository.addProduct(Product.getInstance(0, product.productName, date, status, photo.getBytes(), type));
         return ResponseEntity.ok("product was added");
     }
 
@@ -39,16 +42,26 @@ public class ProductController {
 
     }
 
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRate = 36000)
     public void checkExpiryStatus() {
-        List<Product> expiredProducts = new ArrayList<>();
-        LocalDateTime currentDate = LocalDateTime.now();
+        LocalDate currentDate = LocalDate.now();
 
+        for (Product product : productRepository.getProducts()) {
+            if (product.getExpirationDate().isBefore(currentDate) && (!product.isExpiredStatus())){
+                    product.setExpiredStatus(true);
+                    System.out.println(product.getProductName() + " - expired ");
+            }
+        }
+    }
+    @GetMapping("/expiredProducts")
+    public List<Product> getExpiredProducts() {
+        List<Product> expiredProducts = new ArrayList<>();
+        LocalDate currentDate = LocalDate.now();
         for (Product product : productRepository.getProducts()) {
             if (product.getExpirationDate().isBefore(currentDate)) {
                 expiredProducts.add(product);
-                System.out.println(product.getProductName() + " - expired ");
             }
         }
+        return expiredProducts;
     }
 }

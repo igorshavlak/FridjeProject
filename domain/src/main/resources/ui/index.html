@@ -9,22 +9,28 @@
 </head>
 <body>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-15 col-sm-10 col-lg-6" style="height:300px;width:500px;overflow-y:scroll;">
-                <h6 class="text-muted">Fridge food list</h6>
-                <ul class="list-group" id="productsList">
+<div class="container">
+    <div class="row">
+        <div class="col-15 col-sm-10 col-lg-6">
+            <h6 class="text-muted">Fridge food list</h6>
 
-                </ul>
-
+            <div class="d-flex justify-content-center">
+                <button id = "getAllProducts" type="button" class="btn btn-outline-dark btn-sm">All product</button>
+                <button id = "getExpiredProducts" type="button" class="btn btn-outline-dark btn-sm">Expired products</button>
             </div>
 
+            <ul class="list-group" id="productsList" style="height:300px;width:600px;overflow-y:scroll;">
+
+            </ul>
         </div>
+    </div>
+    <p><a class="button" href="#popup1">Add product</a></p>
+</div>
 
 
 
-        <p><a class="button" href="#popup1">Click Me</a></p>
-    <div id="popup1" class="overlay">
+
+<div id="popup1" class="overlay">
         <div class="popup">
             <h2>Info box</h2>
             <a class="close" href="#">&times;</a>
@@ -57,11 +63,12 @@
     </div>
 
 
-</div>
 <script>
     const url = 'http://localhost:8080';
     const addProductButton = document.getElementById("addProductButton");
-    const listProducts = document.getElementById("productsList")
+    const listProducts = document.getElementById("productsList");
+    const getProductsButton = document.getElementById("getAllProducts");
+    const getExpiredProductsButton = document.getElementById("getExpiredProducts");
 
     const state = {
         products: [],
@@ -84,15 +91,15 @@
     var photoInput = document.getElementById("photo");
     var date = document.getElementById("date");
     var productType = document.getElementById("category");
+    var listGroup = document.getElementById('productsList');
     document.addEventListener('DOMContentLoaded', async () => {
         await getProductsRequest();
 
     })
-
     addProductButton.addEventListener("click", function () {
 
         state.newProduct.productName = productName.value;
-        state.newProduct.expirationDate = date.value.toLocaleDateString('en-US', options);
+        state.newProduct.expirationDate = date.value;
         const json = JSON.stringify(state.newProduct);
         const blob = new Blob([json], {
             type: 'application/json'
@@ -117,7 +124,12 @@
                 console.log(error);
             });
     });
-
+    getProductsButton.addEventListener('click',async () => {
+        await getProductsRequest();
+    })
+    getExpiredProductsButton.addEventListener('click',async () => {
+        await getExpiredProductsRequest();
+    })
     function getProductsRequest() {
         return fetch(url + "/getProduct", {
             headers: {
@@ -129,14 +141,26 @@
             .catch(error => console.error(error));
     }
 
-    function renderProductList(products) {
+    function getExpiredProductsRequest() {
+        return fetch(url + "/expiredProducts", {
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+            .then((res) => res.json())
+            .then(products => renderProductList(products))
+            .catch(error => console.error(error));
+    }
 
+    function renderProductList(products) {
+        listGroup.innerHTML = '';
         products.forEach(function (product) {
             createProductListItem(product);
         });
     }
 
     function createProductListItem(data) {
+
         var listItem = document.createElement('a');
         listItem.setAttribute('href', '#');
         listItem.classList.add('list-group-item', 'list-group-item-action', 'd-flex', 'justify-content-between', 'align-items-center');
@@ -158,8 +182,15 @@
 
 // Додавання значка
         var badgeSpan = document.createElement('span');
-        badgeSpan.classList.add('badge', 'badge-info', 'badge-pill');
-        badgeSpan.textContent = data.expirationDate;
+        if(data.expiredStatus === true){
+            badgeSpan.classList.add('badge', 'badge-danger', 'badge-pill');
+        }
+        else
+        {
+            badgeSpan.classList.add('badge', 'badge-info', 'badge-pill');
+        }
+        var date = new Date(data.expirationDate);
+        badgeSpan.textContent = date.toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
         contentDiv.appendChild(badgeSpan);
 
         // Додавання іконки видалення
@@ -189,9 +220,7 @@
 // Додавання блоку зображення до елемента списку
         listItem.appendChild(imageDiv);
 
-
 // Додавання елемента списку до DOM-дерева
-        var listGroup = document.getElementById('productsList');
         listGroup.appendChild(listItem);
     }
 
