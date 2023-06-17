@@ -35,7 +35,7 @@ public class ProductRepository {
         return jdbcTemplate.query(FETCH_ALL_PRODUCTS, (resultSet, rowNum) -> {
             int id = resultSet.getInt("id");
             String name = resultSet.getString("productname");
-            LocalDate expiryDate = resultSet.getTimestamp("expirationdate").toLocalDateTime().toLocalDate();
+            LocalDateTime expiryDate = resultSet.getTimestamp("expirationdate").toLocalDateTime();
             boolean expiredStatus = resultSet.getBoolean("expiredStatus");
             String type = resultSet.getString("type");
             byte[] photo = resultSet.getBytes("photo");

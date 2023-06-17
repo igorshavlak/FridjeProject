@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +25,8 @@ public class ProductController {
     public ResponseEntity<String> addProduct(@RequestPart("image") MultipartFile photo, @RequestPart("product") ProductDTO product,
                                              @RequestPart("productType") String type) throws IOException {
         boolean status;
-        LocalDate date = LocalDate.parse(product.expirationDate);
-        status = date.isBefore(LocalDate.now());
+        LocalDateTime date = LocalDateTime.parse(product.expirationDate,DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+        status = date.isBefore(LocalDateTime.now());
         productRepository.addProduct(Product.getInstance(0, product.productName, date, status, photo.getBytes(), type));
         return ResponseEntity.ok("product was added");
     }
@@ -44,7 +45,7 @@ public class ProductController {
 
     @Scheduled(fixedRate = 36000)
     public void checkExpiryStatus() {
-        LocalDate currentDate = LocalDate.now();
+        LocalDateTime currentDate = LocalDateTime.now();
 
         for (Product product : productRepository.getProducts()) {
             if (product.getExpirationDate().isBefore(currentDate) && (!product.isExpiredStatus())){
@@ -56,7 +57,7 @@ public class ProductController {
     @GetMapping("/expiredProducts")
     public List<Product> getExpiredProducts() {
         List<Product> expiredProducts = new ArrayList<>();
-        LocalDate currentDate = LocalDate.now();
+        LocalDateTime currentDate = LocalDateTime.now();
         for (Product product : productRepository.getProducts()) {
             if (product.getExpirationDate().isBefore(currentDate)) {
                 expiredProducts.add(product);

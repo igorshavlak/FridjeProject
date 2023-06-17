@@ -119,7 +119,23 @@ h2 {
     max-height: 400px;
     overflow: auto;
 }
+.content form {
+    display: flex;
+    flex-direction: column;
+}
+
+.content form label {
+    width: 100px; /* Установите желаемую ширину метки */
+    margin-right: 10px; /* Дополнительный отступ между меткой и полем ввода */
+}
+
+.content form input,
+.content form select,
+.content form button {
+    flex-grow: 1; /* Растягиваем элементы на всю доступную ширину */
+}
 p {
     margin: 0 0 1em;
 
 }
+

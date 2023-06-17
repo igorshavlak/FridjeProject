@@ -8,7 +8,7 @@ public class Fruit extends Product {
 
 
 
-    public Fruit(int id, LocalDate expirationDate, boolean expiredStatus, byte[] image, String productName) {
+    public Fruit(int id, LocalDateTime expirationDate, boolean expiredStatus, byte[] image, String productName) {
         super(id, expirationDate, expiredStatus, image, productName);
         type = "Fruit";
     }

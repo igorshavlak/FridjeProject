@@ -7,14 +7,14 @@ import java.util.Date;
 
 public abstract class Product {
     protected int id;
-    protected LocalDate expirationDate;
+    protected LocalDateTime expirationDate;
     protected byte[] image;
     protected String productName;
 
     protected String type;
     protected boolean expiredStatus;
 
-    protected Product(int id, LocalDate expirationDate, boolean expiredStatus, byte[] image, String productName){
+    protected Product(int id, LocalDateTime expirationDate, boolean expiredStatus, byte[] image, String productName){
         this.id = id;
         this.expirationDate = expirationDate;
         this.image = image;
@@ -24,7 +24,7 @@ public abstract class Product {
     protected Product(){
 
     }
-    public static Product getInstance(int id,String name, LocalDate date,boolean expiredStatus, byte[] photo, String type)
+    public static Product getInstance(int id,String name, LocalDateTime date,boolean expiredStatus, byte[] photo, String type)
     {
         return switch (type) {
             case "Vegetable" ->
@@ -41,7 +41,7 @@ public abstract class Product {
         return null;
     }
 
-    public LocalDate getExpirationDate() {
+    public LocalDateTime getExpirationDate() {
         return expirationDate;
     }
     public String getProductName() {
@@ -74,7 +74,7 @@ public abstract class Product {
         this.image = image;
     }
 
-    public void setExpirationDate(LocalDate expirationDate) {
+    public void setExpirationDate(LocalDateTime expirationDate) {
         this.expirationDate = expirationDate;
     }
 }

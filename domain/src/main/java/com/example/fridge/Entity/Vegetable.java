@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class Vegetable extends Product {
 
-    public Vegetable(int id, LocalDate expirationDate,  boolean expiredStatus,byte[] image, String productName) {
+    public Vegetable(int id, LocalDateTime expirationDate,  boolean expiredStatus,byte[] image, String productName) {
         super(id, expirationDate, expiredStatus, image, productName);
         type = "Vegetable";
     }
