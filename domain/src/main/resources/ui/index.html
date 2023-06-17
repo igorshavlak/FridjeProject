@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://kit.fontawesome.com/15277ee0a1.js" crossorigin="anonymous"></script>
@@ -86,6 +88,40 @@
     const dateValue = document.getElementById('date');
     const timeValue = document.getElementById('time');
 
+    function connect() {
+        let socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe("/topic/messages", function (message) {
+                var button = document.createElement("button");
+                button.setAttribute("type", "button");
+                button.setAttribute("class", "btn btn-primary");
+                button.setAttribute("data-toggle", "modal");
+                button.setAttribute("data-target", ".bd-example-modal-lg");
+                button.textContent = "Large modal";
+                var modalDiv = document.createElement("div");
+                modalDiv.setAttribute("class", "modal fade bd-example-modal-lg");
+                modalDiv.setAttribute("tabindex", "-1");
+                modalDiv.setAttribute("role", "dialog");
+                modalDiv.setAttribute("aria-labelledby", "myLargeModalLabel");
+                modalDiv.setAttribute("aria-hidden", "true");
+                var modalDialog = document.createElement("div");
+                modalDialog.setAttribute("class", "modal-dialog modal-lg");
+                var modalContent = document.createElement("div");
+                modalContent.setAttribute("class", "modal-content");
+                var paragraph = document.createElement("p");
+                paragraph.textContent = message;
+                modalContent.appendChild(paragraph);
+                modalDialog.appendChild(modalContent);
+                modalDiv.appendChild(modalDialog);
+                document.body.appendChild(button);
+                document.body.appendChild(modalDiv);
+                getProductsRequest();
+            });
+        });
+    }
+
 
 
     const state = {
@@ -111,6 +147,7 @@
     var productType = document.getElementById("category");
     var listGroup = document.getElementById('productsList');
     document.addEventListener('DOMContentLoaded', async () => {
+        connect();
         await getProductsRequest();
 
     })

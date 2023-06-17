@@ -4,11 +4,13 @@ import com.example.fridge.Entity.*;
 import com.example.fridge.Repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,6 +22,8 @@ import java.util.List;
 public class ProductController {
     @Autowired
     ProductRepository productRepository;
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
 
     @PostMapping("/addProduct")
     public ResponseEntity<String> addProduct(@RequestPart("image") MultipartFile photo, @RequestPart("product") ProductDTO product,
@@ -43,14 +47,15 @@ public class ProductController {
 
     }
 
-    @Scheduled(fixedRate = 36000)
+    @Scheduled(fixedRate = 1000)
     public void checkExpiryStatus() {
         LocalDateTime currentDate = LocalDateTime.now();
-
         for (Product product : productRepository.getProducts()) {
-            if (product.getExpirationDate().isBefore(currentDate) && (!product.isExpiredStatus())){
-                    product.setExpiredStatus(true);
+            if (product.getExpirationDate().isBefore(currentDate) && (!product.isExpiredStatus())) {
+                    productRepository.updateStatus(product.getId());
                     System.out.println(product.getProductName() + " - expired ");
+                    simpMessagingTemplate.convertAndSend("/topic/messages",product.getProductName());
+
             }
         }
     }

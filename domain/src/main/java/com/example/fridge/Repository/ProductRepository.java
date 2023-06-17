@@ -3,6 +3,8 @@ package com.example.fridge.Repository;
 import com.example.fridge.Entity.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.SqlParameter;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Date;
@@ -23,6 +25,11 @@ public class ProductRepository {
     private static final String DELETE_PRODUCT = """
         DELETE FROM Products WHERE Id = ?
         """;
+    private static final String UPDATE_PRODUCT = """
+            UPDATE Products
+            SET expiredstatus = true
+            WHERE id = ?;
+            """;
     @Autowired
     public ProductRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -45,5 +52,9 @@ public class ProductRepository {
     }
     public boolean deleteProduct(int id){
         return jdbcTemplate.update(DELETE_PRODUCT, id) > 0;
+    }
+
+    public void updateStatus(int id){
+        jdbcTemplate.update(UPDATE_PRODUCT,  id);
     }
 }
