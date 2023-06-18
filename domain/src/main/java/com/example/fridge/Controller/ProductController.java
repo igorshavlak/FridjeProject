@@ -54,7 +54,7 @@ public class ProductController {
             if (product.getExpirationDate().isBefore(currentDate) && (!product.isExpiredStatus())) {
                     productRepository.updateStatus(product.getId());
                     System.out.println(product.getProductName() + " - expired ");
-                    simpMessagingTemplate.convertAndSend("/topic/messages",product.getProductName());
+                    simpMessagingTemplate.convertAndSend("/topic/messages",product.printExpirationWarning());
 
             }
         }

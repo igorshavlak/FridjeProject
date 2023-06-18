@@ -6,6 +6,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://kit.fontawesome.com/15277ee0a1.js" crossorigin="anonymous"></script>
 </head>
@@ -26,56 +29,54 @@
             </ul>
         </div>
     </div>
-    <p><a class="button" href="#popup1">Add product</a></p>
+
+    <button type="button" class="button" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Add product
+    </button>
 </div>
 
 
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal header">
+            <h2>Product edit</h2>
+        </div>
 
+        <div class="modal-content">
 
-<div id="popup1" class="overlay">
-    <div class="popup">
-        <h2>Product edit</h2>
-        <a class="close" href="#">&times;</a>
-        <div class="content">
-            <form>
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="category">Category:</label>
-                    <select id="category" class="form-select form-select-sm" aria-label=".form-select-sm example">
+            <a class="close" href="#">&times;</a>
+            <div class="content">
+                <form>
+                    <div class="form-group"><label for="name">Name:</label> <input type="text" id="name" name="name"
+                                                                                   required></div>
+                    <div class="form-group"><label for="category">Category:</label> <select id="category"
+                                                                                            class="form-select form-select-sm"
+                                                                                            aria-label=".form-select-sm example">
                         <option selected>Open this select menu</option>
                         <option value="Fruit">Fruit</option>
                         <option value="Vegetable">Vegetable</option>
                         <option value="MeatProduct">MeatProduct</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="photo">Photo:</label>
-                    <input type="file" id="photo" name="photo" required>
-                </div>
-
-                <div class="datetimepicker">
-                    <div class="form-group">
-                        <label for="date">Date:</label>
-                        <input type="date" id="date" value="2018-07-03">
+                    </select></div>
+                    <div class="form-group"><label for="photo">Photo:</label> <input type="file" id="photo" name="photo"
+                                                                                     required></div>
+                    <div class="datetimepicker">
+                        <div class="form-group"><label for="date">Date:</label> <input type="date" id="date"
+                                                                                       value="2018-07-03"></div>
+                        <div class="form-group"><label for="time">Time:</label> <input type="time" id="time"
+                                                                                       value="08:00"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="time">Time:</label>
-                        <input type="time" id="time" value="08:00">
-                    </div>
-                </div>
 
+                </form>
+            </div>
+            <div class="modal-footer">
                 <div class="form-group">
-                    <button type="button" class="btn btn-primary btn-sm" id="addProductButton">Add product</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="addProductButton">Add product</button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
-</div>
+
 
 
 
@@ -94,29 +95,24 @@
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
             stompClient.subscribe("/topic/messages", function (message) {
-                var button = document.createElement("button");
-                button.setAttribute("type", "button");
-                button.setAttribute("class", "btn btn-primary");
-                button.setAttribute("data-toggle", "modal");
-                button.setAttribute("data-target", ".bd-example-modal-lg");
-                button.textContent = "Large modal";
-                var modalDiv = document.createElement("div");
-                modalDiv.setAttribute("class", "modal fade bd-example-modal-lg");
-                modalDiv.setAttribute("tabindex", "-1");
-                modalDiv.setAttribute("role", "dialog");
-                modalDiv.setAttribute("aria-labelledby", "myLargeModalLabel");
-                modalDiv.setAttribute("aria-hidden", "true");
-                var modalDialog = document.createElement("div");
-                modalDialog.setAttribute("class", "modal-dialog modal-lg");
-                var modalContent = document.createElement("div");
-                modalContent.setAttribute("class", "modal-content");
-                var paragraph = document.createElement("p");
-                paragraph.textContent = message;
-                modalContent.appendChild(paragraph);
-                modalDialog.appendChild(modalContent);
-                modalDiv.appendChild(modalDialog);
-                document.body.appendChild(button);
-                document.body.appendChild(modalDiv);
+
+                var modalHtml = '<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">';
+                modalHtml += '<div class="modal-dialog" role="document">';
+                modalHtml += '<div class="modal-content">';
+                modalHtml += '<div class="modal-header">';
+                modalHtml += '<h5 class="modal-title" id="myModalLabel">Product info</h5>';
+                modalHtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close">';
+                modalHtml += '<span aria-hidden="true">&times;</span>';
+                modalHtml += '</button>';
+                modalHtml += '</div>';
+                modalHtml += '<div class="modal-body">';
+                modalHtml += '<p>' + message.body + '</p>';
+                modalHtml += '</div>';
+                modalHtml += '</div>';
+                modalHtml += '</div>';
+                modalHtml += '</div>';
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                $('#myModal').modal('show')
                 getProductsRequest();
             });
         });

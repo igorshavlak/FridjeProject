@@ -38,7 +38,7 @@ public abstract class Product {
     }
 
     public String getType(){
-        return null;
+        return type;
     }
 
     public LocalDateTime getExpirationDate() {
@@ -77,4 +77,6 @@ public abstract class Product {
     public void setExpirationDate(LocalDateTime expirationDate) {
         this.expirationDate = expirationDate;
     }
+
+    public abstract String printExpirationWarning();
 }

@@ -11,7 +11,7 @@ public class Vegetable extends Product {
         type = "Vegetable";
     }
     @Override
-    public String getType(){
-        return "Vegetable";
+    public String printExpirationWarning() {
+        return "Vegetable: " + getProductName() + " was expired";
     }
 }

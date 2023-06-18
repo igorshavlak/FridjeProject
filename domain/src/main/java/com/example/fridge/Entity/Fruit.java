@@ -6,14 +6,12 @@ import java.util.Date;
 
 public class Fruit extends Product {
 
-
-
     public Fruit(int id, LocalDateTime expirationDate, boolean expiredStatus, byte[] image, String productName) {
         super(id, expirationDate, expiredStatus, image, productName);
         type = "Fruit";
     }
     @Override
-    public String getType(){
-        return "Fruit";
+    public String printExpirationWarning() {
+        return "Fruit: " + getProductName() + " was expired";
     }
 }

@@ -10,8 +10,9 @@ public class MeatProduct extends Product{
         super(id,expirationDate,expiredStatus, image, productName);
         type = "MeatProduct";
     }
+
     @Override
-    public String getType(){
-        return "MeatProduct";
+    public String printExpirationWarning() {
+        return "Meat product: " + getProductName() + " was expired";
     }
 }
