@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Date;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -17,7 +18,7 @@ import java.util.List;
 public class ProductRepository {
     private final JdbcTemplate jdbcTemplate;
     private static final String INSERT_PRODUCTS = """
-        INSERT INTO Products(productName,type,expirationDate,expiredStatus,photo) VALUES (?,?,?,?,?)
+        INSERT INTO Products(productName,type,expirationDate,reminderPeriod,expiredStatus,getWarn,photo) VALUES (?,?,?,?,?,?,?)
         """;
     private static final String FETCH_ALL_PRODUCTS = """
         SELECT * FROM Products
@@ -30,13 +31,20 @@ public class ProductRepository {
             SET expiredstatus = true
             WHERE id = ?;
             """;
+    private static final String UPDATE_STATUS_PRODUCT = """
+            UPDATE Products
+            SET getWarn = true
+            WHERE id = ?;
+            """;
+
     @Autowired
     public ProductRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public void addProduct(Product product) {
-        jdbcTemplate.update(INSERT_PRODUCTS, product.getProductName(), product.getType(), product.getExpirationDate(),product.isExpiredStatus(),product.getImage());
+        jdbcTemplate.update(INSERT_PRODUCTS, product.getProductName(), product.getType(), product.getExpirationDate(),product.getReminderPeriod().toHours(),
+                product.isExpiredStatus(),product.isGetWarn(),product.getImage());
     }
     public List<Product> getProducts(){
         return jdbcTemplate.query(FETCH_ALL_PRODUCTS, (resultSet, rowNum) -> {
@@ -44,9 +52,11 @@ public class ProductRepository {
             String name = resultSet.getString("productname");
             LocalDateTime expiryDate = resultSet.getTimestamp("expirationdate").toLocalDateTime();
             boolean expiredStatus = resultSet.getBoolean("expiredStatus");
+            boolean getWarn = resultSet.getBoolean("getWarn");
+            Duration reminderPeriod = Duration.ofHours(resultSet.getInt("reminderPeriod"));
             String type = resultSet.getString("type");
             byte[] photo = resultSet.getBytes("photo");
-            return Product.getInstance(id,name,expiryDate,expiredStatus,photo,type);
+            return Product.getInstance(id,name,expiryDate,reminderPeriod,expiredStatus,getWarn,photo,type);
         });
 
     }
@@ -57,4 +67,8 @@ public class ProductRepository {
     public void updateStatus(int id){
         jdbcTemplate.update(UPDATE_PRODUCT,  id);
     }
+
+    public void updateWarnStatus(int id){ jdbcTemplate.update(UPDATE_STATUS_PRODUCT, id);}
+
+
 }

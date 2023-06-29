@@ -10,4 +10,5 @@ public class ProductDTO {
     public String productName;
 
     public String type;
+    public int reminderPeriod;
 }

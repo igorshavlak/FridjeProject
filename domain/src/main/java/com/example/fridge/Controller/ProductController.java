@@ -31,7 +31,7 @@ public class ProductController {
         boolean status;
         LocalDateTime date = LocalDateTime.parse(product.expirationDate,DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
         status = date.isBefore(LocalDateTime.now());
-        productRepository.addProduct(Product.getInstance(0, product.productName, date, status, photo.getBytes(), type));
+        productRepository.addProduct(Product.getInstance(0, product.productName, date, Duration.ofHours(product.reminderPeriod), status,false, photo.getBytes(), type));
         return ResponseEntity.ok("product was added");
     }
 
@@ -50,7 +50,13 @@ public class ProductController {
     @Scheduled(fixedRate = 1000)
     public void checkExpiryStatus() {
         LocalDateTime currentDate = LocalDateTime.now();
+
         for (Product product : productRepository.getProducts()) {
+            Duration timeLeft = Duration.between(currentDate,product.getExpirationDate());
+            if (timeLeft.compareTo(product.getReminderPeriod()) <= 0 && (!product.isGetWarn())) {
+                productRepository.updateWarnStatus(product.getId());
+                simpMessagingTemplate.convertAndSend("/topic/messages",product.printWarningMessage());
+            }
             if (product.getExpirationDate().isBefore(currentDate) && (!product.isExpiredStatus())) {
                     productRepository.updateStatus(product.getId());
                     System.out.println(product.getProductName() + " - expired ");
